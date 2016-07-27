@@ -1,0 +1,18 @@
+{
+     "bridge": {
+        "name": "HomeBridge",
+        "username": "CC:22:3D:E3:CE:30",
+        "port": 51826,
+        "pin": "031-45-153"
+    },
+    "platforms": [
+        {
+            "platform": "Sinope",
+            "username" : "your-username@email.com",
+	          "password" : "your-password",
+            "login_url": "https://neviweb.com/api/login"
+        }
+    ],
+    "description": "HomeBridge sinope thermostats for Homekit",
+    "accessories": []
+}
