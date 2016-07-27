@@ -34,9 +34,10 @@ function pickCharacteristic(Characteristic, loginPromise) {
     const uuid = 'uuid';
     const extractEvent = R.compose(R.dissoc(uuid),
                                    R.find(R.propEq(uuid, characteristic.UUID)));
+     const event = extractEvent(features);
      R.map(action => {
           characteristic.on(action, callback => {
-            const event = extractEvent(features);
+
             event[action](callback, homebridgeAccessory, loginPromise);
           });
     }, R.keys(event));
