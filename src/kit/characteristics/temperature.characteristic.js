@@ -37,7 +37,6 @@ function pickCharacteristic(Characteristic, loginPromise) {
      const event = extractEvent(features);
      R.map(action => {
           characteristic.on(action, callback => {
-
             event[action](callback, homebridgeAccessory, loginPromise);
           });
     }, R.keys(event));
@@ -45,7 +44,7 @@ function pickCharacteristic(Characteristic, loginPromise) {
 }
 
 function getDevice(deviceId, loginPromise) {
-  loginPromise
+  return loginPromise
   .then(authData => {
     const { session } = authData;
     return request({
@@ -67,28 +66,28 @@ function getTemperature(callback, { id }, loginPromise) {
   });
 }
 
-function setTemperature(callback, homebridgeAccessory, loginPromise) {
+function setTemperature(callback, { id }, loginPromise) {
   callback(undefined, 10.0);
 }
 
-function setTargetTemperature(callback, homebridgeAccessory, loginPromise) {
+function setTargetTemperature(callback, { id }, loginPromise) {
   //Characteristic.CurrentHeatingCoolingState.HEAT = 1;
   callback(undefined, 12.0);
 }
 
-function getTargetTemperature(callback, homebridgeAccessory, loginPromise) {
+function getTargetTemperature(callback, { id }, loginPromise) {
   getDevice(id, loginPromise)
   .then(device => {
     callback(undefined, Math.round(device.setpoint));
   });
 }
 
-function getHeatingState(callback, homebridgeAccessory, loginPromise) {
+function getHeatingState(callback, { id }, loginPromise) {
   //Characteristic.CurrentHeatingCoolingState.HEAT = 1;
   callback(undefined, 1)
 }
 
-function getTargetHeatingCoolingState(callback, homebridgeAccessory, loginPromise) {
+function getTargetHeatingCoolingState(callback, { id }, loginPromise) {
   callback(undefined, 1);
 /*
 Characteristic.TargetHeatingCoolingState.OFF = 0;
@@ -98,15 +97,15 @@ Characteristic.TargetHeatingCoolingState.AUTO = 3; no supported
 */
 }
 
-function setTargetHeatingCoolingState(callback, homebridgeAccessory, loginPromise) {
+function setTargetHeatingCoolingState(callback, { id }, loginPromise) {
   callback(undefined, 1);
 }
 
-function getTemperatureDisplayUnits(callback, homebridgeAccessory, loginPromise) {
+function getTemperatureDisplayUnits(callback, { id }, loginPromise) {
  callback(undefined, 0);
 }
 
-function setTemperatureDisplayUnits(callback, homebridgeAccessory, loginPromise) {
+function setTemperatureDisplayUnits(callback, { id }, loginPromise) {
   callback(undefined, 1);
 }
 
