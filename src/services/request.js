@@ -5,6 +5,7 @@ const winston = require('winston');
 const METHOD_MAP = {
   'GET': request.get,
   'POST': request.post,
+  'PUT': request.put,
 };
 
 const DEFAULTS = {
@@ -30,7 +31,6 @@ function httpAction(method, url, options) {
       uri: url,
     },
   ]);
-
   return httpMethod(payload);
 }
 
@@ -43,7 +43,6 @@ function sessionOption(sessionId) {
     };
 
     const mergedOptions = R.merge(headerOptions, options);
-
     return httpAction(method, url, mergedOptions);
   };
 }

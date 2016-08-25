@@ -11,7 +11,6 @@ function sinopePlatform(homebridge) {
   const { Service, Characteristic } = homebridge.hap;
 
   return function(log, { username, password }) {
-
     const loginPromise = request({
       method: 'POST',
       path: ['login'],
@@ -30,18 +29,25 @@ function sinopePlatform(homebridge) {
 
 function makeAccessory(log, Characteristics, Service, services, platform) {
   return device => {
-    var model = [{
+    const {
+      CurrentHeatingCoolingState,
+      TargetHeatingCoolingState,
+      CurrentTemperature,
+      TargetTemperature,
+      TemperatureDisplayUnits
+    } = Characteristics;
+    const model = [{
         controlService: new Service.Thermostat(device.name),
         characteristics: [
-                    Characteristics.CurrentHeatingCoolingState,
-                    Characteristics.TargetHeatingCoolingState,
-                    Characteristics.CurrentTemperature,
-                    Characteristics.TargetTemperature,
-                    Characteristics.TemperatureDisplayUnits
+                    CurrentHeatingCoolingState,
+                    TargetHeatingCoolingState,
+                    CurrentTemperature,
+                    TargetTemperature,
+                    TemperatureDisplayUnits
                 ]
     }];
 
-    var accessory = new SinopeThermostatAccessory(log, model);
+    const accessory = new SinopeThermostatAccessory(log, model);
     accessory.getServices = () => {
       return services(accessory);
     };

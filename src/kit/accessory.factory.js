@@ -48,7 +48,7 @@ function getServices(log, pickCharacteristic) {
 
   return homebridgeAccessory => {
       const { platform } = homebridgeAccessory;
-      const services = [platform.getInformationService(homebridgeAccessory)];
+      const services = [ platform.getInformationService(homebridgeAccessory) ];
       R.forEach(service => {
         const { controlService } = service;
         services.push(controlService);
