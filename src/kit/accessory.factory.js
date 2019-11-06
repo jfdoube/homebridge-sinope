@@ -5,27 +5,32 @@ function accessories(log, accessoryMaker, loginPromise) {
   return (homeBridgeCallback) => {
 
     loginPromise.then(authData => {
-      const { session } = authData;
+      session = authData.session
       request({
         method: 'GET',
-        path: ['gateway'],
+        path: ['locations'],
         sessionId: session,
       })
-      .then(gateway => {
-        const extractGatewayId = R.pipe(R.head, R.prop('id'));
-        const queryString = {
-          gatewayId: extractGatewayId(gateway),
-        };
-
+      .then(location => {
+        const extractLocationId = R.pipe(R.head, R.prop('id')); const
+        queryString = {'location$id': extractLocationId(location)};
         return request({
           method: 'GET',
-          path: ['device'],
+          path: ['devices'],
           sessionId: session,
           queryString,
         });
       })
       .then(devices => {
-        R.call(homeBridgeCallback, R.map(accessoryMaker, devices));
+        // Gateways are now returned in the list of devices so we need to
+        // filter these out. 
+        const thermostats = devices.filter(function(device) {
+        // TODO(palourde): There must be a more reliable way of doing this than
+        // relying on the parentDevice$id field
+          return device['parentDevice$id'] !== null;
+        });
+
+        R.call(homeBridgeCallback, R.map(accessoryMaker, thermostats));
       });
     });
   }

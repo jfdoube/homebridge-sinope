@@ -9,12 +9,17 @@ const { request } = require('../services/sinope.gateway');
 
 function sinopePlatform(homebridge) {
   const { Service, Characteristic } = homebridge.hap;
+  session = ''
+
+  // Logout from neviweb on shutdown
+  process.on('SIGINT', () => { logout()})
+  process.on('SIGTERM', () => { logout() })
 
   return function(log, { username, password }) {
     const loginPromise = request({
       method: 'POST',
       path: ['login'],
-      body: { email : username, password },
+      body: { username, password, interface: 'neviweb', stayConnected: 1 },
     });
 
     const services = getServices(log, pickCharacteristic(Characteristic, loginPromise));
@@ -66,6 +71,23 @@ function makeAccessory(log, Characteristics, Service, services, platform) {
 function SinopeThermostatAccessory(log, services) {
     this.log = log;
     this.services = services;
+}
+
+function logout() {
+  request({
+    method: 'GET',
+    path: ['logout'],
+    sessionId: session,
+  })
+  .then(response => {
+    if (response.success === true) {
+      console.log('successfully logged out')
+      return
+    }
+  })
+  .catch(err => {
+    console.error('could not log out: ' + err)
+  })
 }
 
 module.exports = sinopePlatform;

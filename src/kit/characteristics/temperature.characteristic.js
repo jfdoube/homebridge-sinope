@@ -38,29 +38,31 @@ function pickCharacteristic(Characteristic, loginPromise) {
     const hasGetEvent = R.has(get);
     const extractEvent = R.compose(R.dissoc(uuid),
                                    R.find(R.propEq(uuid, characteristic.UUID)));
-     const event = extractEvent(features);
-
-     if(hasSetEvent(event)) {
-       characteristic.on(set, (value, callback) => {
-         event[set](value, callback, homebridgeAccessory, loginPromise);
-       });
-     }
-     if(hasGetEvent(event)) {
-       characteristic.on(get, callback => {
-         event[get](callback, homebridgeAccessory, loginPromise);
-       });
-     }
+    const event = extractEvent(features);
+    if(hasSetEvent(event)) {
+      characteristic.on(set, (value, callback) => {
+        event[set](value, callback, homebridgeAccessory, loginPromise);
+      });
+    }
+    if(hasGetEvent(event)) {
+      characteristic.on(get, callback => {
+        event[get](callback, homebridgeAccessory, loginPromise);
+      });
+    }
   }
 }
 
-function getDevice(deviceId, loginPromise) {
+function getDevice(homebridgeAccessory, loginPromise) {
   return loginPromise
   .then(authData => {
     const { session } = authData;
+    queryString = {'attributes': 'setpointMode,roomSetpoint,roomSetpointMin,roomSetpointMax,roomTemperature,outputPercentDisplay,alarmsActive0'};
+
     return request({
       method: 'GET',
-      path: ['device', deviceId, 'data'],
+      path: ['device', homebridgeAccessory.id, 'attribute'],
       sessionId: session,
+      queryString
     })
     .then(device => {
       return device;
@@ -68,28 +70,28 @@ function getDevice(deviceId, loginPromise) {
   });
 }
 
-function getTemperature(callback, { id }, loginPromise) {
-  getDevice(id, loginPromise)
+function getTemperature(callback, homebridgeAccessory, loginPromise) {
+  getDevice(homebridgeAccessory, loginPromise)
   .then(device => {
-    callback(undefined, Math.round(device.temperature));
+    callback(undefined, Math.round(device.roomTemperature.value));
   });
 }
 
-function setTemperature(callback, { id }, loginPromise) {
+function setTemperature(value, callback, homebridgeAccessory, loginPromise) {
   callback(undefined, 10.0);
 }
 
 function setTargetTemperature(value, callback, homebridgeAccessory, loginPromise) {
   //Characteristic.CurrentHeatingCoolingState.HEAT = 1;
   const body = {
-    temperature: value,
+    roomSetpoint: value,
   };
-  console.log(value);
+
   loginPromise
   .then(authData => {
     request({
       method: 'PUT',
-      path: ['device', homebridgeAccessory.id, 'setpoint'],
+      path: ['device', homebridgeAccessory.id, 'attribute'],
       sessionId: authData.session,
       body,
     })
@@ -99,10 +101,10 @@ function setTargetTemperature(value, callback, homebridgeAccessory, loginPromise
   });
 }
 
-function getTargetTemperature(callback, { id }, loginPromise) {
-  getDevice(id, loginPromise)
+function getTargetTemperature(callback, homebridgeAccessory, loginPromise) {
+  getDevice(homebridgeAccessory, loginPromise)
   .then(device => {
-    callback(undefined, Math.round(device.setpoint));
+    callback(undefined, Math.round(device.roomSetpoint));
   });
 }
 
@@ -121,15 +123,15 @@ Characteristic.TargetHeatingCoolingState.AUTO = 3; no supported
 */
 }
 
-function setTargetHeatingCoolingState(callback, { id }, loginPromise) {
-  callback(undefined, 1);
+function setTargetHeatingCoolingState(value, callback, { id }, loginPromise) {
+  callback(null, 1);
 }
 
 function getTemperatureDisplayUnits(callback, { id }, loginPromise) {
  callback(undefined, 0);
 }
 
-function setTemperatureDisplayUnits(callback, { id }, loginPromise) {
+function setTemperatureDisplayUnits(value, callback, { id }, loginPromise) {
   callback(undefined, 1);
 }
 
