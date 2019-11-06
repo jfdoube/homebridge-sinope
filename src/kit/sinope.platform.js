@@ -82,7 +82,6 @@ function logout() {
   .then(response => {
     if (response.success === true) {
       console.log('successfully logged out')
-      return
     }
   })
   .catch(err => {

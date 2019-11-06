@@ -23,12 +23,10 @@ function accessories(log, accessoryMaker, loginPromise) {
       })
       .then(devices => {
         // Gateways are now returned in the list of devices so we need to
-        // filter these out. 
-        const thermostats = devices.filter(function(device) {
+        // filter these out.
         // TODO(palourde): There must be a more reliable way of doing this than
         // relying on the parentDevice$id field
-          return device['parentDevice$id'] !== null;
-        });
+        const thermostats = devices.filter(device => device['parentDevice$id'] !== null)
 
         R.call(homeBridgeCallback, R.map(accessoryMaker, thermostats));
       });
